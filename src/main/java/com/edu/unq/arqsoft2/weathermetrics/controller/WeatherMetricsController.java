@@ -21,13 +21,13 @@ public class WeatherMetricsController {
     }
 
     @GetMapping("/avg/day")
-    public double getAvgDay() {
-        return weatherService.getAverageTemperature(1);
+    public WeatherData getAvgDay() {
+        return weatherService.getAverageTemperatureByDay().join();
     }
 
     @GetMapping("/avg/week")
-    public double getAvgWeek() {
-        return weatherService.getAverageTemperature(7);
+    public WeatherData getAvgWeek() {
+        return weatherService.getAverageTemperatureByWeek().join();
     }
 
 }
