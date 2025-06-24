@@ -7,6 +7,7 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import io.micrometer.core.instrument.MeterRegistry;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
+@Slf4j
 @Service
 public class WeatherMetricsService {
     private static final Logger logger = LoggerFactory.getLogger(WeatherMetricsService.class);
@@ -42,6 +44,7 @@ public class WeatherMetricsService {
     @TimeLimiter(name = "weatherService")
     @Retry(name = "weatherService")
     public CompletableFuture<WeatherData> getCurrentWeather() {
+        log.info("Fetching current weather data");
         String cacheKey = "current_weather";
         
         Supplier<WeatherData> dataSupplier = () -> {
