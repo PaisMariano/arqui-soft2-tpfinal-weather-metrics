@@ -1,0 +1,119 @@
+openapi: 3.1.0
+info:
+  title: Weather Metrics API
+  description: API para obtener métricas meteorológicas
+  contact:
+    name: Equipo de Desarrollo
+    email: desarrollo@example.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  version: "1.0"
+servers:
+- url: http://localhost:8082
+  description: Generated server url
+tags:
+- name: Weather Metrics
+  description: API para obtener métricas meteorológicas
+paths:
+  /api/v1/weather/current:
+    get:
+      tags:
+      - Weather Metrics
+      summary: Obtener el clima actual
+      description: Devuelve los datos meteorológicos actuales
+      operationId: getCurrent
+      responses:
+        "200":
+          description: Datos meteorológicos obtenidos exitosamente
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/WeatherData"
+        "500":
+          description: Error interno del servidor
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/WeatherData"
+  /api/v1/weather/avg/week:
+    get:
+      tags:
+      - Weather Metrics
+      summary: Obtener el promedio semanal de temperatura
+      description: Devuelve el promedio de temperatura de los últimos 7 días
+      operationId: getAvgWeek
+      responses:
+        "200":
+          description: Promedio semanal obtenido exitosamente
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/WeatherData"
+        "500":
+          description: Error interno del servidor
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/WeatherData"
+  /api/v1/weather/avg/day:
+    get:
+      tags:
+      - Weather Metrics
+      summary: Obtener el promedio diario de temperatura
+      description: Devuelve el promedio de temperatura de las últimas 24 horas
+      operationId: getAvgDay
+      responses:
+        "200":
+          description: Promedio diario obtenido exitosamente
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/WeatherData"
+        "500":
+          description: Error interno del servidor
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/WeatherData"
+  /api/admin/clean-duplicates:
+    get:
+      tags:
+      - admin-controller
+      operationId: cleanDuplicates
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties: {}
+  /api/admin/cache-stats:
+    get:
+      tags:
+      - admin-controller
+      operationId: getCacheStats
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties: {}
+components:
+  schemas:
+    WeatherData:
+      type: object
+      description: Modelo que representa los datos meteorológicos
+      properties:
+        temperature:
+          type: number
+          format: double
+          description: Temperatura en grados Celsius
+          example: 22.5
+        description:
+          type: string
+          description: Descripción del clima
+          example: Parcialmente nublado
