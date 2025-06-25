@@ -1,0 +1,60 @@
+@startuml
+allowmixing
+!define RECTANGLE class
+' Skin parameters for a cleaner look
+skinparam class {
+  BackgroundColor #FDF6E3
+  BorderColor #657B83
+  ArrowColor #859900
+}
+skinparam actor {
+  BorderColor #268BD2
+  FontColor #268BD2
+}
+skinparam arrow {
+  FontColor #657B83
+}
+
+RECTANGLE WeatherMetricsController {
+  +getAverageTemperatureByWeek()
+  +getAverageTemperatureByDay()
+  +getCurrentWeather()
+}
+
+RECTANGLE WeatherMetricsService {
+  +getAverageTemperatureByWeek()
+  +getAverageTemperatureByDay()
+  +getCurrentWeather()
+}
+
+RECTANGLE WeatherCacheService {
+  +getCachedOrFetch(...)
+  +invalidateCache(...)
+}
+
+RECTANGLE WeatherCacheRepository {
+  +findByKey(key)
+  +save(entity)
+}
+
+RECTANGLE WeatherLoaderClient {
+  +fetchAverageByWeekWeather()
+  +fetchAverageByDayWeather()
+  +fetchCurrentWeather()
+}
+
+RECTANGLE WeatherCache
+RECTANGLE WeatherData
+
+actor "User/API Client" as User
+
+User --> WeatherMetricsController : HTTP Request (API Call)
+WeatherMetricsController --> WeatherMetricsService : Invokes Business Logic
+WeatherMetricsService --> WeatherCacheService : Queries/Updates Cache
+WeatherCacheService --> WeatherCacheRepository : Data Access (Cache)
+WeatherCacheService --> WeatherLoaderClient : Calls External Service API
+WeatherLoaderClient --> "External Weather Service" : REST API Call
+WeatherCacheRepository <.. WeatherCache : Manages (Entity)
+WeatherMetricsService <.. WeatherData : Returns (Response)
+@enduml
+
