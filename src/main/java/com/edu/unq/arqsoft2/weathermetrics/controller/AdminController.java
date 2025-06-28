@@ -2,9 +2,14 @@ package com.edu.unq.arqsoft2.weathermetrics.controller;
 
 import com.edu.unq.arqsoft2.weathermetrics.model.WeatherCache;
 import com.edu.unq.arqsoft2.weathermetrics.repository.WeatherCacheRepository;
+import com.edu.unq.arqsoft2.weathermetrics.service.WeatherCacheService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,12 +18,17 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/admin")
+@RequestMapping("/api/v1/admin")
+@Tag(name = "Admin", description = "Endpoints de administración")
 public class AdminController {
     private static final Logger logger = LoggerFactory.getLogger(AdminController.class);
 
+    private final WeatherCacheRepository cacheRepository;
+
     @Autowired
-    private WeatherCacheRepository cacheRepository;
+    public AdminController(WeatherCacheRepository cacheRepository, WeatherCacheService cacheService) {
+        this.cacheRepository = cacheRepository;
+    }
 
     @GetMapping("/clean-duplicates")
     public ResponseEntity<Map<String, Object>> cleanDuplicates() {
@@ -103,6 +113,31 @@ public class AdminController {
             response.put("status", "error");
             response.put("message", e.getMessage());
             return ResponseEntity.internalServerError().body(response);
+        }
+    }
+    
+    @DeleteMapping("/cache")
+    @Operation(summary = "Eliminar toda la caché", 
+               description = "Elimina todas las entradas de la caché")
+    @ApiResponse(responseCode = "200", description = "Caché eliminada exitosamente")
+    public ResponseEntity<Map<String, Object>> clearAllCache() {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            long count = cacheRepository.count();
+            cacheRepository.deleteAll();
+            
+            response.put("status", "success");
+            response.put("message", "Toda la caché ha sido eliminada");
+            response.put("entriesDeleted", count);
+            
+            logger.info("Toda la caché ha sido eliminada. Entradas eliminadas: {}", count);
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            logger.error("Error al intentar eliminar la caché", e);
+            response.put("status", "error");
+            response.put("message", "Error al intentar eliminar la caché: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 }
