@@ -16,7 +16,7 @@ public class WeatherData {
     private Double temperature;
     
     @Schema(description = "Descripción del clima", example = "Parcialmente nublado")
-    private String description;
+    private String description = "Buenos Aires";
 
     public WeatherData() {}
 

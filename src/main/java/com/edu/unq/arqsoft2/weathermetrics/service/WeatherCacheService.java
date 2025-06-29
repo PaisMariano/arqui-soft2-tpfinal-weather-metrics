@@ -61,7 +61,9 @@ public class WeatherCacheService {
             // Si hay un error al obtener datos frescos, devolver datos en caché aunque estén expirados
             if (cachedData.isPresent()) {
                 logger.warn("Using expired cache data for key: {}", cacheKey);
-                return cachedData.get().getData();
+                WeatherData dataCache = cachedData.get().getData();
+                dataCache.setDescription("Usando datos en caché expirados debido a un error al obtener datos frescos");
+                return dataCache;
             }
             
             throw new RuntimeException("No se pudo obtener datos y no hay caché disponible", e);
