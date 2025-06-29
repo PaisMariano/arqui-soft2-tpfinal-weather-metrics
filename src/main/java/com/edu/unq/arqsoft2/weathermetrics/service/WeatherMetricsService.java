@@ -108,7 +108,7 @@ public class WeatherMetricsService {
         // Devolver datos por defecto o lanzar una excepción personalizada
         // dependiendo de los requisitos de tu aplicación
         WeatherData fallbackData = new WeatherData(
-            999.0,
+            null,
             "Datos de respaldo - Servicio temporalmente no disponible"
         );
         return CompletableFuture.completedFuture(fallbackData);
