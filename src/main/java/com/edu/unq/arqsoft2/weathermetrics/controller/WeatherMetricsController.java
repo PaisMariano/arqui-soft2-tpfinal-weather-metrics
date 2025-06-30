@@ -33,6 +33,17 @@ public class WeatherMetricsController {
         return weatherService.getCurrentWeather().join();
     }
 
+    @Operation(summary = "Tratar de obtener el clima actual ", description = "Prueba de resiliencia para obtener los datos meteorológicos actuales")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Datos meteorológicos obtenidos exitosamente",
+                    content = @Content(schema = @Schema(implementation = WeatherData.class))),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
+    @GetMapping("/current/slow")
+    public WeatherData getCurrentSlow() throws InterruptedException {
+        return weatherService.getCurrentWeatherSlow().join();
+    }
+
     @Operation(summary = "Obtener el promedio diario de temperatura", 
                description = "Devuelve el promedio de temperatura de las últimas 24 horas")
     @ApiResponses(value = {

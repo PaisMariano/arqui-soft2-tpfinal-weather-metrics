@@ -40,8 +40,6 @@ public class WeatherMetricsService {
     }
 
     @CircuitBreaker(name = "weatherService", fallbackMethod = "fallbackWeather")
-    @Bulkhead(name = "weatherService")
-    @TimeLimiter(name = "weatherService")
     @Retry(name = "weatherService")
     public CompletableFuture<WeatherData> getCurrentWeather() {
         log.info("Fetching current weather data");
@@ -56,6 +54,32 @@ public class WeatherMetricsService {
         
         WeatherData data = cacheService.getCachedOrFetch(cacheKey, dataSupplier, CACHE_TTL_MINUTES);
         return CompletableFuture.completedFuture(data);
+    }
+
+    @CircuitBreaker(name = "weatherService", fallbackMethod = "fallbackWeather")
+    @TimeLimiter(name = "weatherService")
+    @Retry(name = "weatherService")
+    public CompletableFuture<WeatherData> getCurrentWeatherSlow() throws InterruptedException {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                Thread.sleep(40000);
+                log.info("Fetching current weather data");
+                String cacheKey = "current_weather";
+
+                Supplier<WeatherData> dataSupplier = () -> {
+                    logger.info("Fetching fresh current weather data");
+                    WeatherData data = loader.getCurrentWeather();
+                    updateMetrics(data, "weather_temperature_current");
+                    return data;
+                };
+
+                return cacheService.getCachedOrFetch(cacheKey, dataSupplier, CACHE_TTL_MINUTES);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                logger.error("Error fetching current weather with delay", e);
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     @CircuitBreaker(name = "weatherService", fallbackMethod = "fallbackWeather")
